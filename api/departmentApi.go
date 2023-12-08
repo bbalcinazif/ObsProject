@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ObsProject/MiddleWare"
 	"ObsProject/Models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,5 +17,5 @@ func GetDepartments(c *gin.Context) {
 	c.JSON(http.StatusOK, departments)
 }
 func DepartmentApi(r *gin.RouterGroup) {
-	r.GET("/getdepartments", GetDepartments)
+	r.GET("/getdepartments", MiddleWare.IsJwtValid, GetDepartments)
 }

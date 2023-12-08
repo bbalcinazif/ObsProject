@@ -13,5 +13,5 @@ type User struct {
 	Mail         string     `json:"mail"`
 	DepartmentID uint       `json:"department_id"`
 	Department   Department `json:"department"`
-	IsTeacher    *bool      `json:"is_teacher"`
+	IsTeacher    bool       `json:"is_teacher"`
 }

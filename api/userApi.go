@@ -14,11 +14,11 @@ func UserSignup(c *gin.Context) {
 	err := c.Bind(&user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "a cannot be empty",
+			"message": "Fields cannot be empty",
 		})
 		return
 	}
-	if user.Password != "" && user.Username != "" && user.IsTeacher != nil {
+	if user.Password != "" && user.Username != "" {
 		hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 5)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +38,7 @@ func UserSignup(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "b cannot be empty",
+			"error": "Fields cannot be empty",
 		})
 	}
 
