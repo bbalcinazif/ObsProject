@@ -14,4 +14,5 @@ type User struct {
 	DepartmentID uint       `json:"department_id"`
 	Department   Department `json:"department"`
 	IsTeacher    bool       `json:"is_teacher"`
+	IsManager    bool       `json:"is_manager"`
 }

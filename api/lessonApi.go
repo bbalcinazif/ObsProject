@@ -11,11 +11,12 @@ func GetLessons(c *gin.Context) {
 	var lessons []Models.Lesson
 	if err := Models.DB.Find(&lessons).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Projeler Görüntülenemedi.",
+			"message": "Dersler Görüntülenemedi.",
 		})
 	}
 	c.JSON(http.StatusOK, lessons)
 }
+
 func LessonApi(r *gin.RouterGroup) {
 	r.GET("/getlessons", MiddleWare.IsJwtValid, GetLessons)
 }

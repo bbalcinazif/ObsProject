@@ -88,3 +88,26 @@ func IsStudent(c *gin.Context) {
 		}
 	}
 }
+func IsManager(c *gin.Context) {
+	tokenString, _ := c.Request.Cookie("token")
+	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
+		return []byte("gizliAnahtar"), nil
+	})
+	if err != nil {
+		fmt.Println("JWT Decode failed", err)
+		c.AbortWithStatus(401)
+		return
+	} else {
+		if Claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			isManager := Claims["is_manager"].(bool)
+
+			if isManager {
+				c.Next()
+			} else {
+				c.AbortWithStatus(401)
+			}
+		} else {
+			c.AbortWithStatus(401)
+		}
+	}
+}

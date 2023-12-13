@@ -17,7 +17,7 @@ func main() {
 		log.Print(err.Error())
 	}
 	Models.DB = db
-	err = db.AutoMigrate(&Models.User{}, &Models.Project{}, &Models.Department{})
+	err = db.AutoMigrate(&Models.User{}, &Models.Project{}, &Models.Department{}, &Models.DepartmentLesson{})
 	if err != nil {
 		fmt.Println(err.Error())
 	}

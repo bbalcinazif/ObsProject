@@ -13,16 +13,17 @@ import (
 
 var jwtKey = []byte("gizliAnahtar")
 
-func generateJWT(username string, isTeacher bool) (string, error) {
+func generateJWT(username string, isTeacher bool, isManager bool) (string, error) {
 	// Token generate
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	// Token features
 	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Second * 600).Unix()
+	claims["exp"] = time.Now().Add(time.Second * 300000).Unix()
 	claims["iat"] = time.Now().Unix()
 	claims["username"] = username
 	claims["is_teacher"] = isTeacher
+	claims["is_manager"] = isManager
 
 	// Token signed
 	tokenString, err := token.SignedString(jwtKey)
@@ -45,7 +46,7 @@ func LoginUser(c *gin.Context) {
 			"message": "User login failed",
 		})
 	} else {
-		token, err := generateJWT(user.Username, user.IsTeacher)
+		token, err := generateJWT(user.Username, user.IsTeacher, user.IsManager)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create token"})
 			return

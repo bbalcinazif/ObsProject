@@ -43,6 +43,7 @@ func UserSignup(c *gin.Context) {
 	}
 
 }
+
 func GetUsers(c *gin.Context) {
 	var users []Models.User
 	if err := Models.DB.Find(&users).Error; err != nil {
@@ -53,6 +54,6 @@ func GetUsers(c *gin.Context) {
 func UserApi(r *gin.RouterGroup) {
 	r.POST("/loginuser", Controllers.LoginUser)
 	r.POST("/usersignup", UserSignup)
-	r.GET("getusers", MiddleWare.IsJwtValid, GetUsers)
+	r.GET("getusers", MiddleWare.IsJwtValid, MiddleWare.IsManager, GetUsers)
 
 }
