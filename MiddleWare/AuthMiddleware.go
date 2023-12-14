@@ -111,3 +111,6 @@ func IsManager(c *gin.Context) {
 		}
 	}
 }
+func CheckDepartment(c *gin.Context) {
+
+}

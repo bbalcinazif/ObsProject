@@ -99,7 +99,7 @@ func SignProject(c *gin.Context) {
 }
 
 func ProjectApi(r *gin.RouterGroup) {
-	r.GET("/getprojects", MiddleWare.IsJwtValid, GetProjects)
+	r.GET("/getprojects", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, GetProjects)
 	r.POST("/signproject", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, SignProject)
 	r.DELETE("/deleteprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, DeleteProjectByID)
 	r.PUT("/updateprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, UpdateProject)
