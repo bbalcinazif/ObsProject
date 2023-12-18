@@ -33,6 +33,6 @@ func GetLessonsByUserID(c *gin.Context) {
 }
 
 func LessonApi(r *gin.RouterGroup) {
-	r.GET("/getlessons", MiddleWare.IsJwtValid, GetLessons)
-	r.GET("departmentlessonsbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsStudent, GetLessonsByUserID)
+	r.GET("/getlessons", MiddleWare.IsJwtValid /*Öğretmendersidsine göre*/, GetLessons)
+	r.GET("lessonsbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsStudent, GetLessonsByUserID)
 }

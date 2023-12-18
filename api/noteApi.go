@@ -7,30 +7,73 @@ import (
 	"net/http"
 )
 
-func GetNotes(c *gin.Context) {
+func GetNotesT(c *gin.Context) {
+	userID := MiddleWare.GetUserInToken(c)
+	var user Models.User
 
-	//öğretmen departmanının notlarını görebilecek
+	if err := Models.DB.Where("user_id=?", userID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Kullanıcı bilgileri hatalı",
+		})
+		return
+	}
+	var dLessons []Models.DepartmentLesson
+	if err := Models.DB.Where("department_id=?", user.DepartmentID).Find(&dLessons).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Hatalı",
+		})
+	}
+	var lesson Models.Lesson
+	var notes []Models.Notes
+	for i := range dLessons {
+		Models.DB.Where("lesson_id=?", dLessons[i].LessonID).First(&lesson)
+		if lesson.UserID == userID {
+			Models.DB.Where("lesson_id=?", dLessons[i].LessonID).Find(&notes)
+			c.JSON(http.StatusOK, notes)
+		} else {
+			if i == len(dLessons)-1 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"message": "A Failed",
+				})
+			}
+		}
+
+	}
+
 }
 
-func GetNoteByID(c *gin.Context) {
-	noteID := c.Param("id")
+//func GetNotesS(c *gin.Context) {
+//	userID := MiddleWare.GetUserInToken(c)
+//	var user Models.User
+//	var dLessons Models.DepartmentLesson
+//	if err := Models.DB.Where("user_id=?", userID).Where("department_id=?", dLessons).First(&user).Error; err != nil {
+//		c.JSON(http.StatusBadRequest, gin.H{
+//			"message": "Kullanıcı bilgileri hatalı",
+//		})
+//		return
+//	}
+//
+//}
 
-	if noteID == "" {
+func GetNoteByID(c *gin.Context) {
+	userID := c.Param("id")
+
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "ID zorunludur",
 		})
 		return
 	}
-	var note Models.Notes
+	var notes Models.Notes
 
-	if err := Models.DB.First(&note, noteID).Error; err != nil {
+	if err := Models.DB.Where("user_id=?", userID).Find(&notes).Error; err != nil { //buraya bir where daha gelecek ve departmentid kontrol edecek.
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Not bulunamadı",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, note)
+	c.JSON(http.StatusOK, notes)
 }
 func SignNote(c *gin.Context) {
 	var note Models.Notes
@@ -54,7 +97,8 @@ func SignNote(c *gin.Context) {
 }
 
 func NoteApi(r *gin.RouterGroup) {
-	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsStudent /*DepartmanIDCheck    */, GetNoteByID)
-	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /* DepartmanIDCheck  */, SignProject)
+	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /*DepartmanIDCheck    */, GetNoteByID)
+	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /* DepartmanIDCheck  */, SignNote)
+	r.GET("/getnotes", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, GetNotesT)
 
 }
