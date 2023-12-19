@@ -3,59 +3,50 @@ package api
 import (
 	"ObsProject/MiddleWare"
 	"ObsProject/Models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func GetNotesT(c *gin.Context) {
-	userID := MiddleWare.GetUserInToken(c)
+func getNotes(c *gin.Context) {
+	tokenString, _ := c.Request.Cookie("token")
+	userID := MiddleWare.GetUserInToken(tokenString.Value)
+	fmt.Println("userID:", userID)
 	var user Models.User
+	if err := Models.DB.Preload("Department").Where("id = ?", userID).First(&user).Error; err != nil {
+		fmt.Println("user alınamadı..")
+	}
 
-	if err := Models.DB.Where("user_id=?", userID).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Kullanıcı bilgileri hatalı",
-		})
-		return
+	fmt.Println("USER:", user)
+	fmt.Println("department.id:", user.DepartmentID)
+
+	var departmentLessonList []Models.DepartmentLesson
+	if er := Models.DB.Preload("Lessons").Where("department_id = ?", user.DepartmentID).Find(&departmentLessonList).Error; er != nil {
+		fmt.Println("dersler listesini alamadım")
 	}
-	var dLessons []Models.DepartmentLesson
-	if err := Models.DB.Where("department_id=?", user.DepartmentID).Find(&dLessons).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Hatalı",
-		})
-	}
-	var lesson Models.Lesson
+	fmt.Println("Department Lesson List:", departmentLessonList)
+
 	var notes []Models.Notes
-	for i := range dLessons {
-		Models.DB.Where("lesson_id=?", dLessons[i].LessonID).First(&lesson)
-		if lesson.UserID == userID {
-			Models.DB.Where("lesson_id=?", dLessons[i].LessonID).Find(&notes)
-			c.JSON(http.StatusOK, notes)
-		} else {
-			if i == len(dLessons)-1 {
-				c.JSON(http.StatusBadRequest, gin.H{
-					"message": "A Failed",
-				})
+	var lesson Models.Lessons
+	for l := range departmentLessonList {
+		Models.DB.Preload("User").Where("id = ?", departmentLessonList[l].LessonsID).First(&lesson)
+
+		fmt.Println("lesson.UserID:", lesson.UserID)
+		fmt.Println("userID:", userID)
+		if lesson.UserID == userID.(uint) {
+			fmt.Println("eeeeeeeeeeeeeeeeeeeeeee")
+			if e := Models.DB.Preload("User").Preload("User.Department").Preload("Lessons").Preload("Lessons.User").Preload("Lessons.User.Department").Where("lessons_id = ?", lesson.ID).Find(&notes).Error; e != nil {
+				fmt.Println("notlar getirilemedi.")
+			} else {
+				c.JSON(http.StatusOK, notes)
 			}
 		}
-
 	}
 
+	fmt.Println("NOTES:", notes)
 }
 
-//func GetNotesS(c *gin.Context) {
-//	userID := MiddleWare.GetUserInToken(c)
-//	var user Models.User
-//	var dLessons Models.DepartmentLesson
-//	if err := Models.DB.Where("user_id=?", userID).Where("department_id=?", dLessons).First(&user).Error; err != nil {
-//		c.JSON(http.StatusBadRequest, gin.H{
-//			"message": "Kullanıcı bilgileri hatalı",
-//		})
-//		return
-//	}
-//
-//}
-
-func GetNoteByID(c *gin.Context) {
+func getNoteByID(c *gin.Context) {
 	userID := c.Param("id")
 
 	if userID == "" {
@@ -75,7 +66,7 @@ func GetNoteByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, notes)
 }
-func SignNote(c *gin.Context) {
+func signNote(c *gin.Context) {
 	var note Models.Notes
 	err := c.Bind(&note)
 	if err != nil {
@@ -87,7 +78,7 @@ func SignNote(c *gin.Context) {
 	result := Models.DB.Create(&note)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to join note",
+			"error": "Failed to create note",
 		})
 		return
 	}
@@ -97,8 +88,8 @@ func SignNote(c *gin.Context) {
 }
 
 func NoteApi(r *gin.RouterGroup) {
-	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /*DepartmanIDCheck    */, GetNoteByID)
-	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /* DepartmanIDCheck  */, SignNote)
-	r.GET("/getnotes", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, GetNotesT)
+	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /*DepartmanIDCheck    */, getNoteByID)
+	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher /* DepartmanIDCheck  */, signNote)
+	r.GET("/getnotest", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNotes)
 
 }

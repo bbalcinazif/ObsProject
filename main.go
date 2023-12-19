@@ -29,8 +29,8 @@ func main() {
 	api.DepartmentApi(group)
 	api.ProjectApi(group)
 	api.LessonApi(group)
+	api.DepartmentLessonApi(group)
 	api.NoteApi(group)
-	//api.DeparmentLessonApi(group)
 
 	r.Run(":8080")
 }

@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func UserSignup(c *gin.Context) {
+func userSignup(c *gin.Context) {
 	var user Models.User
 	err := c.Bind(&user)
 	if err != nil {
@@ -44,7 +44,7 @@ func UserSignup(c *gin.Context) {
 
 }
 
-func GetUsers(c *gin.Context) {
+func getUsers(c *gin.Context) {
 	var users []Models.User
 	if err := Models.DB.Find(&users).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Kullanıcılar görüntülenemedi."})
@@ -53,7 +53,7 @@ func GetUsers(c *gin.Context) {
 }
 func UserApi(r *gin.RouterGroup) {
 	r.POST("/loginuser", Controllers.LoginUser)
-	r.POST("/usersignup", UserSignup)
-	r.GET("getusers", MiddleWare.IsJwtValid, MiddleWare.IsManager, GetUsers)
+	r.POST("/usersignup", userSignup)
+	r.GET("getusers", MiddleWare.IsJwtValid, MiddleWare.IsManager, getUsers)
 
 }

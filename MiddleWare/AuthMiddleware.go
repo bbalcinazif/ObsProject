@@ -39,59 +39,16 @@ func IsJwtValid(c *gin.Context) {
 
 }
 
-/*
-	func GetUserInToken(c *gin.Context) int {
-		tokenString, _ := c.Request.Cookie("token")
+func GetUserInToken(tokenString string) interface{} {
+	//tokenString, err := c.Request.Cookie("token")
 
-		token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
-			return []byte("gizliAnahtar"), nil
-		})
-
-		if err != nil {
-			fmt.Println("JWT Decode failed ", err)
-			c.AbortWithStatus(401)
-			return 0
-
-		} else {
-			//JWT son kullanım süresi
-
-			if Claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				expirationTime := time.Unix(int64(Claims["exp"].(float64)), 0)
-				currentTime := time.Now()
-
-				if currentTime.Before(expirationTime) {
-					userID := int(Claims["user_id"].(float64))
-					return userID
-
-				} else {
-					c.AbortWithStatus(401)
-				}
-			} else {
-				c.AbortWithStatus(401)
-
-			}
-		}
-
-		return 0
-	}
-*/
-func GetUserInToken(c *gin.Context) interface{} {
-	tokenString, err := c.Request.Cookie("token")
-
-	if err != nil {
-		fmt.Println("Token not found")
-		c.AbortWithStatus(401)
-		return nil
-	}
-
-	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte("gizliAnahtar"), nil
 	})
 
 	if err != nil {
 		fmt.Println("JWT Decode failed ", err)
-		c.AbortWithStatus(401)
-		return nil
+		//return nil
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -100,15 +57,12 @@ func GetUserInToken(c *gin.Context) interface{} {
 
 		if currentTime.Before(expirationTime) {
 			userID := int(claims["user_id"].(float64))
-			return userID
+			return uint(userID)
 		} else {
-			c.AbortWithStatus(401)
 			return nil
 		}
-	} else {
-		c.AbortWithStatus(401)
-		return nil
 	}
+	return nil
 }
 
 func IsTeacher(c *gin.Context) {

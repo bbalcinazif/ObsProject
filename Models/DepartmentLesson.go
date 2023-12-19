@@ -6,6 +6,6 @@ type DepartmentLesson struct {
 	gorm.Model
 	DepartmentID uint       `json:"department_id"`
 	Department   Department `json:"department"`
-	LessonID     uint       `json:"lesson_id"`
-	Lesson       Lesson     `json:"lesson"`
+	LessonsID    uint       `json:"lessons_id"`
+	Lessons      Lessons    `json:"lessons"`
 }

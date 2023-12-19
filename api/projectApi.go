@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func GetProjects(c *gin.Context) {
+func getProjects(c *gin.Context) {
 	var projects []Models.Project
 	if err := Models.DB.Find(&projects).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -18,7 +18,7 @@ func GetProjects(c *gin.Context) {
 
 }
 
-func DeleteProjectByID(c *gin.Context) {
+func deleteProjectByID(c *gin.Context) {
 	id := c.Param("id")
 	result := Models.DB.Delete(&Models.Project{}, id)
 	if result.Error != nil {
@@ -36,7 +36,7 @@ func DeleteProjectByID(c *gin.Context) {
 		"message": "Proje başarıyla silindi.",
 	})
 }
-func UpdateProject(c *gin.Context) {
+func updateProject(c *gin.Context) {
 	var updatedproject Models.Project
 	id := c.Param("id")
 
@@ -68,7 +68,7 @@ func UpdateProject(c *gin.Context) {
 	})
 }
 
-func SignProject(c *gin.Context) {
+func signProject(c *gin.Context) {
 	var project Models.Project
 	err := c.Bind(&project)
 	if err != nil {
@@ -99,9 +99,9 @@ func SignProject(c *gin.Context) {
 }
 
 func ProjectApi(r *gin.RouterGroup) {
-	r.GET("/getprojects", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, GetProjects)
-	r.POST("/signproject", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, SignProject)
-	r.DELETE("/deleteprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, DeleteProjectByID)
-	r.PUT("/updateprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, UpdateProject)
+	r.GET("/getprojects", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getProjects)
+	r.POST("/signproject", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, signProject)
+	r.DELETE("/deleteprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, deleteProjectByID)
+	r.PUT("/updateprojectbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, updateProject)
 
 }

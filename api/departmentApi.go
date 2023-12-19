@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func GetDepartments(c *gin.Context) {
+func getDepartments(c *gin.Context) {
 	var departments []Models.Department
 	if err := Models.DB.Find(&departments).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -16,6 +16,29 @@ func GetDepartments(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, departments)
 }
+func signDepartment(c *gin.Context) {
+	var Department Models.Department
+	err := c.Bind(&Department)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Fields cannot be empty",
+		})
+		return
+	}
+	result := Models.DB.Create(&Department)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create Department",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Department oluşturuldu",
+	})
+
+}
+
 func DepartmentApi(r *gin.RouterGroup) {
-	r.GET("/getdepartments", MiddleWare.IsJwtValid, GetDepartments)
+	r.GET("/getdepartments", MiddleWare.IsJwtValid, getDepartments)
+	r.POST("/signdepartment", MiddleWare.IsJwtValid, MiddleWare.IsManager, signDepartment)
 }

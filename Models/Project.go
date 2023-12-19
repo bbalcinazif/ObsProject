@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Project struct {
 	gorm.Model
-	Name     string `json:"name"`
-	LessonID uint   `json:"lesson_id"`
-	Lesson   Lesson `json:"lesson"`
+	Name      string  `json:"name"`
+	LessonsID uint    `json:"lessons_id"`
+	Lessons   Lessons `json:"lessons"`
 }
