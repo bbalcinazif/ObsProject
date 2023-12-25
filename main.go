@@ -17,7 +17,7 @@ func main() {
 		log.Print(err.Error())
 	}
 	Models.DB = db
-	err = db.AutoMigrate(&Models.User{}, &Models.Project{}, &Models.Department{}, &Models.DepartmentLesson{}, &Models.Notes{})
+	err = db.AutoMigrate(&Models.User{}, &Models.Project{}, &Models.Department{}, &Models.DepartmentLesson{}, &Models.Notes{}, &Models.LessonProject{})
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -31,6 +31,7 @@ func main() {
 	api.LessonApi(group)
 	api.DepartmentLessonApi(group)
 	api.NoteApi(group)
+	api.LessonProjectApi(group)
 
 	r.Run(":8080")
 }

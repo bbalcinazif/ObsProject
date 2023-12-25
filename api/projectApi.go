@@ -68,6 +68,7 @@ func updateProject(c *gin.Context) {
 	})
 }
 
+// TODO lesson apideki gibi proje kaydında bir lessonproject kaydı yapacak ...
 func signProject(c *gin.Context) {
 	var project Models.Project
 	err := c.Bind(&project)

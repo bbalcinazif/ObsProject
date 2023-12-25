@@ -43,6 +43,24 @@ func userSignup(c *gin.Context) {
 	}
 
 }
+func deleteUser(c *gin.Context) {
+	id := c.Param("id")
+	result := Models.DB.Delete(&Models.User{}, id)
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed",
+		})
+	}
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "User bulunamadı",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Kullanıcı başarıyla silindi",
+	})
+}
 
 func getUsers(c *gin.Context) {
 	var users []Models.User
@@ -53,7 +71,8 @@ func getUsers(c *gin.Context) {
 }
 func UserApi(r *gin.RouterGroup) {
 	r.POST("/loginuser", Controllers.LoginUser)
-	r.POST("/usersignup", userSignup)
+	r.DELETE("/deleteuserbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsManager, deleteUser)
+	r.POST("/usersignup", MiddleWare.IsJwtValid, MiddleWare.IsManager, userSignup)
 	r.GET("getusers", MiddleWare.IsJwtValid, MiddleWare.IsManager, getUsers)
 
 }

@@ -1,6 +1,8 @@
 package Models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 var DB *gorm.DB
 
@@ -13,6 +15,8 @@ type User struct {
 	Mail         string     `json:"mail"`
 	DepartmentID uint       `json:"department_id"`
 	Department   Department `json:"department"`
+	ProjectID    *uint      `json:"project_id"`
+	Project      Project    `json:"project"`
 	IsTeacher    bool       `json:"is_teacher"`
 	IsManager    bool       `json:"is_manager"`
 }
