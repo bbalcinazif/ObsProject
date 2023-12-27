@@ -19,7 +19,7 @@ func generateJWT(username string, isTeacher bool, isManager bool, ID uint) (stri
 
 	// Token features
 	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Minute * 3000000).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 525600).Unix()
 	claims["iat"] = time.Now().Unix()
 	claims["username"] = username
 	claims["is_teacher"] = isTeacher

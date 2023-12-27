@@ -72,7 +72,7 @@ func getUsers(c *gin.Context) {
 func UserApi(r *gin.RouterGroup) {
 	r.POST("/loginuser", Controllers.LoginUser)
 	r.DELETE("/deleteuserbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsManager, deleteUser)
-	r.POST("/usersignup", MiddleWare.IsJwtValid, MiddleWare.IsManager, userSignup)
+	r.POST("/usersignup", MiddleWare.IsJwtValid, userSignup)
 	r.GET("getusers", MiddleWare.IsJwtValid, MiddleWare.IsManager, getUsers)
 
 }

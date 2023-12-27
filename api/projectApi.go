@@ -3,7 +3,9 @@ package api
 import (
 	"ObsProject/MiddleWare"
 	"ObsProject/Models"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 )
 
@@ -70,33 +72,48 @@ func updateProject(c *gin.Context) {
 
 // TODO lesson apideki gibi proje kaydında bir lessonproject kaydı yapacak ...
 func signProject(c *gin.Context) {
+	var data map[string]interface{}
 	var project Models.Project
-	err := c.Bind(&project)
+	byteData, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "a cannot be empty",
+			"error": "Failed to request body",
+		})
+		return
+	}
+	err = json.Unmarshal(byteData, &data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Unmarshal hatası",
 		})
 		return
 	}
 
-	if project.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Proje adı boş bırakılamaz",
-		})
-		return
-	}
+	project.Name = data["project_name"].(string)
 
 	result := Models.DB.Create(&project)
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create Project",
+			"error": "Failed to create lesson",
 		})
 		return
 	}
 
+	var lessonproject Models.LessonProject
+	lessonproject.ProjectID = project.ID
+	lessonproject.LessonsID = uint(data["lessons_id"].(float64))
+
+	resultls := Models.DB.Create(&lessonproject)
+	if resultls.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Lessons project oluşturulamadı",
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Project created",
+		"message": "Başarılı",
 	})
+
 }
 
 func ProjectApi(r *gin.RouterGroup) {

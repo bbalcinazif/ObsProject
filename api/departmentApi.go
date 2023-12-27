@@ -39,6 +39,6 @@ func signDepartment(c *gin.Context) {
 }
 
 func DepartmentApi(r *gin.RouterGroup) {
-	r.GET("/getdepartments", MiddleWare.IsJwtValid, getDepartments)
+	r.GET("/getdepartments", MiddleWare.IsJwtValid, MiddleWare.IsManager, getDepartments)
 	r.POST("/signdepartment", MiddleWare.IsJwtValid, MiddleWare.IsManager, signDepartment)
 }

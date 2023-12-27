@@ -83,6 +83,53 @@ func getNotesT(c *gin.Context) {
 
 	fmt.Println("NOTES:", notes)
 }
+func CheckPass(c *gin.Context) {
+	userID := c.Param("id")
+	var Notes Models.Notes
+	var dersBasarili int
+
+	if err := Models.DB.Where("user_id=?", userID).Find(&Notes).Error; err != nil { //buraya bir where daha gelecek ve departmentid kontrol edecek.
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Not kayıtları bulunamadı",
+		})
+	} else {
+		vize1 := Notes.Vize1
+		vize2 := Notes.Vize2
+		final := Notes.Final
+		projectnot := Notes.ProjeNot
+
+		dersBasarili = int(float64(vize1)*0.15 + float64(vize2)*0.15 + float64(final)*0.40 + float64(projectnot)*0.3)
+		if dersBasarili >= 50 && dersBasarili < 60 {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlandı...!!  Ders Harf Notu:DC"})
+		} else if dersBasarili >= 60 && dersBasarili < 70 {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlandı...!! Ders Harf Notu:CC"})
+		} else if dersBasarili >= 70 && dersBasarili < 80 {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlandı...!! Ders Harf Notu:BB"})
+		} else if dersBasarili >= 80 && dersBasarili < 90 {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlandı...!! Ders Harf Notu:BA"})
+		} else if dersBasarili >= 90 && dersBasarili < 100 {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlandı...!! Ders Harf Notu:AA"})
+		} else {
+			c.JSON(http.StatusOK, gin.H{"message": "Ders başarıyla tamamlanamadı...!! Ders Harf Notu:FF "})
+		}
+	}
+	var newIsPass bool
+	if dersBasarili >= 50 {
+		newIsPass = true
+	} else {
+		newIsPass = false
+	}
+	if err := Models.DB.Model(&Notes).Update("is_pass", newIsPass).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Ispass değeri güncellenirken hata oluştu",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Ispass değeri başarıyla güncellendi",
+	})
+
+}
 
 func getNoteByID(c *gin.Context) {
 	userID := c.Param("id")
@@ -124,6 +171,7 @@ func deleteNotByID(c *gin.Context) {
 	})
 
 }
+
 func updateNot(c *gin.Context) {
 	var updatednote Models.Notes
 	id := c.Param("id")
@@ -156,6 +204,7 @@ func updateNot(c *gin.Context) {
 	})
 
 }
+
 func signNote(c *gin.Context) {
 	//öğretmen lesson idsiyle check yapacak...
 	var note Models.Notes
@@ -166,20 +215,27 @@ func signNote(c *gin.Context) {
 		})
 		return
 	}
-	result := Models.DB.Create(&note)
-	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create note",
+	if note.Vize1 >= 0 && note.Vize1 <= 100 && note.Vize2 >= 0 && note.Vize2 <= 100 && note.Final >= 0 && note.Final <= 100 && note.ProjeNot >= 0 && note.ProjeNot <= 100 {
+		result := Models.DB.Create(&note)
+		if result.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to create note",
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Not girişi başarılı",
 		})
-		return
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Hatalı not girişi yaptınız ! Not değerleri 0 - 100 arası olmalıdır.",
+		})
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Not girişi başarılı",
-	})
+
 }
 
 func NoteApi(r *gin.RouterGroup) {
 	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNoteByID)
+	r.GET("/checkpass/:id", MiddleWare.IsJwtValid, CheckPass)
 	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, signNote)
 	r.GET("/getnotest", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNotesT)
 	r.GET("/getnotes", MiddleWare.IsJwtValid, MiddleWare.IsStudent, getNotesS)

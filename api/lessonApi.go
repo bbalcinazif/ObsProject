@@ -53,8 +53,7 @@ func signLesson(c *gin.Context) {
 		})
 		return
 	}
-	//TODO user alacağız
-	//lesson.DepartmentID = uint(data["department_id"].(float64))
+
 	lesson.Name = data["lessons_name"].(string)
 	lesson.UserID = uint(data["user_id"].(float64))
 	// Lessons nesnesini kaydet
