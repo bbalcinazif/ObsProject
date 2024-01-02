@@ -57,6 +57,7 @@ func GetUserInToken(tokenString string) interface{} {
 
 		if currentTime.Before(expirationTime) {
 			userID := int(claims["user_id"].(float64))
+			fmt.Println("userID:", userID)
 			return uint(userID)
 		} else {
 			return nil

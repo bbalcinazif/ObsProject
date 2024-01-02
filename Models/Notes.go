@@ -15,5 +15,6 @@ type Notes struct {
 	UserID    uint    `json:"user_id"`
 	User      User    `json:"user"`
 	ISPass    *bool   `json:"is_pass"`
-	//TODO harf notu kaydet
+	Ortalama  float64 `json:"ortalama"`
+	HarfNot   string  `json:"harf_not"`
 }

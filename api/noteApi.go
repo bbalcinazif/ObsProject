@@ -46,6 +46,18 @@ func getNotesS(c *gin.Context) {
 	}
 
 }
+func CheckMezun(c *gin.Context) {
+	tokenString, _ := c.Request.Cookie("token")
+	userID := MiddleWare.GetUserInToken(tokenString.Value)
+	fmt.Println("userID:", userID)
+	var user Models.User
+	if err := Models.DB.Preload("Department").Where("id = ?", userID).First(&user).Error; err != nil {
+		fmt.Println("user alınamadı..")
+	}
+	fmt.Println("USER:", user)
+
+}
+
 func getNotesT(c *gin.Context) {
 	tokenString, _ := c.Request.Cookie("token")
 	userID := MiddleWare.GetUserInToken(tokenString.Value)
@@ -237,7 +249,7 @@ func NoteApi(r *gin.RouterGroup) {
 	r.GET("/getnotesbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNoteByID)
 	r.GET("/checkpass/:id", MiddleWare.IsJwtValid, CheckPass)
 	r.POST("signnote", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, signNote)
-	r.GET("/getnotest", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNotesT)
+	r.POST("/getnotest", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, getNotesT)
 	r.GET("/getnotes", MiddleWare.IsJwtValid, MiddleWare.IsStudent, getNotesS)
 	r.DELETE("/deletenotebyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, deleteNotByID)
 	r.PUT("/updatenotebyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsTeacher, updateNot)

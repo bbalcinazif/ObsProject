@@ -83,7 +83,7 @@ func signLesson(c *gin.Context) {
 }
 
 func LessonApi(r *gin.RouterGroup) {
-	r.GET("/getlessons", MiddleWare.IsJwtValid /*Öğretmendersidsine göre*/, getLessons)
+	r.GET("/getlessons", MiddleWare.IsJwtValid, getLessons)
 	r.GET("/lessonsbyid/:id", MiddleWare.IsJwtValid, MiddleWare.IsStudent, getLessonsByUserID)
 	r.POST("/signlesson", MiddleWare.IsJwtValid, MiddleWare.IsManager, signLesson)
 }
